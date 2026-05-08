@@ -1,0 +1,6 @@
+@PersonalTrainerService_HostAddress = http://localhost:5005
+
+GET {{PersonalTrainerService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
