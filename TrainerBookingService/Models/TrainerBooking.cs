@@ -1,12 +1,15 @@
-namespace PersonalTrainerService.Models;
+namespace Models;
+using System.ComponentModel.DataAnnotations;
+using MongoDB.Bson.Serialization.Attributes;
 
 public class TrainerBooking
 {
-    public int BookingId { get; private set; }
-    public int MemberId { get; private set; }
-    public int TrainerId { get; private set; }
-    public DateTime StartTime { get; private set; }
-    public DateTime EndTime { get; private set; }
+    [BsonId]
+    public int BookingId { get; set; }
+    public int MemberId { get; set; }
+    public int TrainerId { get; set; }
+    public DateTime StartTime { get; set; }
+    public DateTime EndTime { get; set; }
     
     public TrainerBooking(int memberId, int trainerId, DateTime startTime, DateTime endTime)
     {
