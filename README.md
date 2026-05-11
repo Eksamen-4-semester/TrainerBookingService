@@ -1,5 +1,3 @@
-# PersonalTrainerService
-
 # TrainerBookingService
 
 A microservice for managing personal trainer bookings. The service allows gym members of FitLife to book a personal trainer for a specific time slot, cancel existing bookings, and retrieve booking information to see their booking history.
