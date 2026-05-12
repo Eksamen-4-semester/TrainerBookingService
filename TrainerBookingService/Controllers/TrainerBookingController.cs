@@ -1,4 +1,5 @@
-using System.Diagnostics;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models;
@@ -34,10 +35,18 @@ public async Task<IActionResult> CreateBooking([FromBody] TrainerBookingDto book
 {
     _logger.LogInformation("Called {function} endpoint", nameof(CreateBooking));
 
-    if (bookingDto.MemberId <= 0 || bookingDto.TrainerId <= 0)
+    var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+    if (userIdClaim == null)
     {
-        _logger.LogInformation("CreateBooking called with invalid memberId or trainerId");
-        return BadRequest("Invalid memberId or trainerId");
+        _logger.LogError("MemberId claim not found in token");
+        return Unauthorized();
+    }
+    var memberId = int.Parse(userIdClaim.Value);
+    
+    if (bookingDto.TrainerId <= 0)
+    {
+        _logger.LogInformation("CreateBooking called with invalid trainerId");
+        return BadRequest("Invalid trainerId");
     }
 
     if (bookingDto.StartTime >= bookingDto.EndTime)
@@ -51,25 +60,25 @@ public async Task<IActionResult> CreateBooking([FromBody] TrainerBookingDto book
     var userClient = _httpClientFactory.CreateClient("userService");
     userClient.DefaultRequestHeaders.Authorization =
         new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-    var memberResponse = await userClient.GetAsync($"api/Member/{bookingDto.MemberId}");
+    var memberResponse = await userClient.GetAsync($"api/Member/{memberId}");
     if (!memberResponse.IsSuccessStatusCode)
     {
-        _logger.LogInformation("Member {MemberId} not found in UserService", bookingDto.MemberId);
-        return NotFound($"Member {bookingDto.MemberId} not found");
+        _logger.LogInformation("Member {MemberId} not found in UserService", memberId);
+        return NotFound($"Member {memberId} not found");
     }
 
     /*var membershipClient = _httpClientFactory.CreateClient("membershipService");
     membershipClient.DefaultRequestHeaders.Authorization =
         new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-    var membershipResponse = await membershipClient.GetAsync($"api/Membership/{bookingDto.MemberId}");
+    var membershipResponse = await membershipClient.GetAsync($"api/Membership/{memberId}");
     if (!membershipResponse.IsSuccessStatusCode)
     {
-        _logger.LogInformation("Member {MemberId} has no active membership", bookingDto.MemberId);
-        return BadRequest($"Member {bookingDto.MemberId} has no active membership");
+        _logger.LogInformation("Member {MemberId} has no active membership", memberId);
+        return BadRequest($"Member {memberId} has no active membership");
     }*/
 
     var booking = await _trainerBookingRepository.CreateBooking(
-        bookingDto.MemberId,
+        memberId,
         bookingDto.TrainerId,
         bookingDto.StartTime,
         bookingDto.EndTime);
@@ -77,12 +86,12 @@ public async Task<IActionResult> CreateBooking([FromBody] TrainerBookingDto book
     if (booking == null)
     {
         _logger.LogError("CreateBooking failed for memberId {MemberId} and trainerId {TrainerId}",
-            bookingDto.MemberId, bookingDto.TrainerId);
+            memberId, bookingDto.TrainerId);
         return StatusCode(500, "Failed to create booking");
     }
 
     _logger.LogInformation("Booking created for memberId {MemberId} and trainerId {TrainerId}",
-        bookingDto.MemberId, bookingDto.TrainerId);
+        memberId, bookingDto.TrainerId);
     return Created($"/api/TrainerBooking/{booking.BookingId}", booking);
 }
 
@@ -91,6 +100,7 @@ public async Task<IActionResult> CreateBooking([FromBody] TrainerBookingDto book
     [Route("{bookingId:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> CancelBooking(int bookingId)
     {
@@ -102,6 +112,22 @@ public async Task<IActionResult> CreateBooking([FromBody] TrainerBookingDto book
             return BadRequest("Invalid bookingId");
         }
 
+        var booking = await _trainerBookingRepository.GetBooking(bookingId);
+        if (booking == null)
+        {
+            _logger.LogInformation("Booking with id {BookingId} not found", bookingId);
+            return NotFound($"Booking with id {bookingId} not found");
+        }
+        
+        var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+        var isAdminOrTrainer = User.IsInRole("Admin") || User.IsInRole("Trainer");
+
+        if (!isAdminOrTrainer && userIdClaim != null && booking.MemberId != int.Parse(userIdClaim.Value))
+        {
+            _logger.LogInformation("Member {MemberId} tried to cancel booking {BookingId} belonging to another member", userIdClaim.Value, bookingId);
+            return Forbid();
+        }
+        
         var result = await _trainerBookingRepository.CancelBooking(bookingId);
         if (!result)
         {
@@ -129,6 +155,7 @@ public async Task<IActionResult> CreateBooking([FromBody] TrainerBookingDto book
     [Route("{bookingId:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetBooking(int bookingId)
     {
@@ -147,6 +174,15 @@ public async Task<IActionResult> CreateBooking([FromBody] TrainerBookingDto book
             return NotFound();
         }
 
+        var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+        var isAdminOrTrainer = User.IsInRole("Admin") || User.IsInRole("Trainer");
+        
+        if (!isAdminOrTrainer && userIdClaim != null && booking.MemberId != int.Parse(userIdClaim.Value))
+        {
+            _logger.LogInformation("Booking with {BookingId} does not belong to member {MemberId}", bookingId, userIdClaim.Value);
+            return Forbid();
+        }
+        
         return Ok(booking);
     }
     
@@ -155,6 +191,7 @@ public async Task<IActionResult> CreateBooking([FromBody] TrainerBookingDto book
     [Route("member/{memberId:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> GetBookingsByMember(int memberId)
     {
         _logger.LogInformation("Called {function} endpoint", nameof(GetBookingsByMember));
@@ -166,6 +203,15 @@ public async Task<IActionResult> CreateBooking([FromBody] TrainerBookingDto book
         }
 
         var bookings = await _trainerBookingRepository.GetBookingsByMember(memberId);
+        
+        var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+        var isAdminOrTrainer = User.IsInRole("Admin") || User.IsInRole("Trainer");
+        
+        if (!isAdminOrTrainer && userIdClaim != null && memberId != int.Parse(userIdClaim.Value))
+        {
+            _logger.LogInformation("Member {MemberId} tried to access bookings for member {TargetMemberId}", userIdClaim.Value, memberId);
+            return Forbid();
+        }
         return Ok(bookings);
     }
 }
