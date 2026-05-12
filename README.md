@@ -8,6 +8,7 @@ A microservice for managing personal trainer bookings. The service allows gym me
 - `DELETE /api/TrainerBooking/{bookingId}` - Cancel a booking
 - `GET /api/TrainerBooking` - Get all bookings
 - `GET /api/TrainerBooking/{bookingId}` - Get a specific booking
+- `GET /api/TrainerBooking/member/{memberId}` - Get all bookings for a specific member
 
 ## Technologies
 
