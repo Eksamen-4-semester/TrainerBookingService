@@ -8,4 +8,6 @@ public interface ITrainerBookingRepository
     Task<bool> CancelBooking(int bookingId);
     Task<IEnumerable<TrainerBooking>> GetAllBookings();
     Task<TrainerBooking> GetBooking(int bookingId);
+    Task<IEnumerable<TrainerBooking>> GetBookingsByMember(int memberId);
+
 }

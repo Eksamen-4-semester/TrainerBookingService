@@ -85,4 +85,19 @@ public class TrainerBookingRepository : ITrainerBookingRepository
             .Sort(sort).Limit(1).FirstOrDefaultAsync();
         return result?.BookingId ?? 0;
     }
+    
+    public async Task<IEnumerable<TrainerBooking>> GetBookingsByMember(int memberId)
+    {
+        _logger.LogDebug("GetBookingsByMember called from {Repo}", nameof(TrainerBookingRepository));
+        try
+        {
+            var filter = Builders<TrainerBooking>.Filter.Eq(x => x.MemberId, memberId);
+            return await _trainerBookingCollection.Find(filter).ToListAsync();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "GetBookingsByMember failed for memberId {MemberId}", memberId);
+            return Enumerable.Empty<TrainerBooking>();
+        }
+    }
 }
