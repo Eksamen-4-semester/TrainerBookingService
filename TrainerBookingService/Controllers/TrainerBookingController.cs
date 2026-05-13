@@ -67,15 +67,15 @@ public async Task<IActionResult> CreateBooking([FromBody] TrainerBookingDto book
         return NotFound($"Member {memberId} not found");
     }
 
-    /*var membershipClient = _httpClientFactory.CreateClient("membershipService");
+    var membershipClient = _httpClientFactory.CreateClient("membershipService");
     membershipClient.DefaultRequestHeaders.Authorization =
         new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-    var membershipResponse = await membershipClient.GetAsync($"api/Membership/{memberId}");
-    if (!membershipResponse.IsSuccessStatusCode)
+    var membershipResponse = await membershipClient.GetAsync($"api/MemberSubscription/{memberId}");
+           if (!membershipResponse.IsSuccessStatusCode)
     {
         _logger.LogInformation("Member {MemberId} has no active membership", memberId);
         return BadRequest($"Member {memberId} has no active membership");
-    }*/
+    }
 
     var booking = await _trainerBookingRepository.CreateBooking(
         memberId,

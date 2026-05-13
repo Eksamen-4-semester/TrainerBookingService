@@ -119,7 +119,7 @@ try
     {
         var userServiceUrl = Environment.GetEnvironmentVariable("USERSERVICE_URL");
         if (string.IsNullOrWhiteSpace(userServiceUrl))
-            Console.WriteLine("USERSERVICE_URL is not set, using localhost instead");
+            logger.Warn("USERSERVICE_URL is not set, using localhost instead");
         client.BaseAddress = new Uri(userServiceUrl ?? "http://localhost:5001/");
     });
 
@@ -127,7 +127,7 @@ try
     {
         var membershipServiceUrl = Environment.GetEnvironmentVariable("MEMBERSHIPSERVICE_URL");
         if (string.IsNullOrWhiteSpace(membershipServiceUrl))
-            Console.WriteLine("MEMBERSHIPSERVICE_URL is not set, using localhost instead");
+            logger.Warn("MEMBERSHIPSERVICE_URL is not set, using localhost instead");
         client.BaseAddress = new Uri(membershipServiceUrl ?? "http://localhost:5002/");
     });
 
