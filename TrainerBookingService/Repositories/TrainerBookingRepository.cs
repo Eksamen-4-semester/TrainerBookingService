@@ -100,4 +100,17 @@ public class TrainerBookingRepository : ITrainerBookingRepository
             return Enumerable.Empty<TrainerBooking>();
         }
     }
+    public async Task<bool> BookingOverlaps(int trainerId, DateTime startTime, DateTime endTime)
+    {
+        var utcStart = startTime.ToUniversalTime();
+        var utcEnd = endTime.ToUniversalTime();
+    
+        var filter = Builders<TrainerBooking>.Filter.And(
+            Builders<TrainerBooking>.Filter.Eq(x => x.TrainerId, trainerId),
+            Builders<TrainerBooking>.Filter.Lt(x => x.StartTime, utcEnd),
+            Builders<TrainerBooking>.Filter.Gt(x => x.EndTime, utcStart)
+        );
+        var count = await _trainerBookingCollection.CountDocumentsAsync(filter);
+        return count > 0;
+    }
 }

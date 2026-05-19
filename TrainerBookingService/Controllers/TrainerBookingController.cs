@@ -30,6 +30,7 @@ public class TrainerBookingController : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
 public async Task<IActionResult> CreateBooking([FromBody] TrainerBookingDto bookingDto)
 {
@@ -75,6 +76,14 @@ public async Task<IActionResult> CreateBooking([FromBody] TrainerBookingDto book
     {
         _logger.LogInformation("Member {MemberId} has no active membership", memberId);
         return BadRequest($"Member {memberId} has no active membership");
+    }
+           
+    var overlaps = await _trainerBookingRepository.BookingOverlaps(
+        bookingDto.TrainerId, bookingDto.StartTime, bookingDto.EndTime);
+    if (overlaps)
+    {
+        _logger.LogInformation("Trainer {TrainerId} already has a booking in this time slot", bookingDto.TrainerId);
+        return Conflict("Trainer is already booked in this time slot");
     }
 
     var booking = await _trainerBookingRepository.CreateBooking(

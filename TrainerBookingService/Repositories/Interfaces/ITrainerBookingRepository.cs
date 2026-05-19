@@ -9,5 +9,6 @@ public interface ITrainerBookingRepository
     Task<IEnumerable<TrainerBooking>> GetAllBookings();
     Task<TrainerBooking> GetBooking(int bookingId);
     Task<IEnumerable<TrainerBooking>> GetBookingsByMember(int memberId);
+    Task<bool> BookingOverlaps(int trainerId, DateTime startTime, DateTime endTime);
 
 }
