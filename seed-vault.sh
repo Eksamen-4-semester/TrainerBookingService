@@ -61,8 +61,6 @@ docker exec \
     echo "Writing secret/mongo..."
     vault kv put secret/mongo @/tmp/vault-mongo.json >/dev/null
 
-    rm -f /tmp/vault-auth.json /tmp/vault-mongo.json
-
     echo "Done."
   '
 
