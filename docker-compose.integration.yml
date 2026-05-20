@@ -32,7 +32,7 @@ services:
 
 
   trainerbooking-service:
-    image: mortenstaunstrup/trainerbookingservice-image:latest
+    image: nicl841/trainerbookingservice-image:latest
     expose:
       - "8080"
     networks:
