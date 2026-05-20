@@ -30,28 +30,6 @@ services:
       - VAULT_URL=https://vault:8201/
       - DOCKER=TRUE
 
-  session-service:
-    image: mortenstaunstrup/sessionservice-image:latest
-    expose:
-      - "8080"
-    networks:
-      - fitlife
-    environment:
-      - AUTHSERVICE_URL=http://nginx:4000/authservices/
-      - VAULT_URL=https://vault:8201/
-      - USERSERVICE_URL=http://nginx:4000/userservice/
-      - DOCKER=TRUE
-
-  analytics-service:
-    image: thanushanb/analyticsservice-image:latest
-    expose:
-      - "8080"
-    networks:
-      - fitlife
-    environment:
-      - AUTHSERVICE_URL=http://nginx:4000/authservices/
-      - VAULT_URL=https://vault:8201/
-      - DOCKER=TRUE
 
   trainerbooking-service:
     image: mortenstaunstrup/trainerbookingservice-image:latest
@@ -66,22 +44,6 @@ services:
       - VAULT_URL=https://vault:8201/
       - DOCKER=TRUE
 
-
-  frontend:
-    image: mortenstaunstrup/frontend-image:latest
-    expose:
-      - "8080"
-    networks:
-      - fitlife
-    environment:
-      - VAULT_URL=https://vault:8201/
-      - AUTHSERVICE_URL=http://nginx:4000/authservices/api/
-      - USERSERVICE_URL=http://nginx:4000/userservices/api/
-      - SESSIONSERVICE_URL=http://nginx:4000/sessionservices/api/
-      - MEMBERSHIPSERVICE_URL=http://nginx:4000/membershipservices/api/
-      - TRAINERBOOKINGSERVICE_URL=http://nginx:4000/trainerbookingservices/api/
-    volumes:
-      - datakeys:/root/.aspnet/DataProtection-Keys
 
   nginx:
     image: nginx:latest
