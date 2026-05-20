@@ -1,0 +1,8 @@
+{
+  "MONGO_CONNECTION_STRING": "mongodb://admin:secret123@mongodb:27017/?authSource=admin",
+  "MONGO_MEMBERSHIP_DB": "MembershipDb",
+  "MONGO_SESSION_DB": "SessionDb",
+  "MONGO_USER_DB": "UserDb",
+  "MONGO_ANALYTICS_DB" : "AnalyticsDb",
+  "MONGO_TRAINERBOOKING_DB" : "TrainerBookingDb"
+}

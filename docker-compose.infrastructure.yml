@@ -1,0 +1,75 @@
+services:
+  vault:
+    image: hashicorp/vault:latest
+    restart: on-failure:10
+    ports:
+      - "8201:8201"
+    environment:
+      VAULT_ADDR: 'https://0.0.0.0:8201'
+      VAULT_LOCAL_CONFIG:
+        '{"disable_mlock": true, "listener": [{"tcp":{"address": "0.0.0.0:8201",
+        "tls_disable": "0", "tls_cert_file":"/data/cert.pem",
+        "tls_key_file":"/data/key.pem"}}],
+        "default_lease_ttl": "168h", "max_lease_ttl": "720h"},
+        "ui": true}'
+      VAULT_DEV_ROOT_TOKEN_ID: '00000000-0000-0000-0000-000000000000'
+      VAULT_TOKEN: '00000000-0000-0000-0000-000000000000'
+      SKIP_SETCAP: "true"
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - ./vault-volume:/data
+    healthcheck:
+      retries: 5
+    command: 'server -dev -dev-root-token-id="00000000-0000-0000-0000-000000000000"'
+    networks:
+      - fitlife
+    
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: secret123
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - fitlife
+
+  loki:
+    image: grafana/loki
+    container_name: loki
+    ports:
+    - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - fitlife
+
+  grafana:
+    depends_on:
+      - loki
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - fitlife
+
+networks:
+  fitlife:
+    external: true
+
+volumes:
+  mongo-data:
+    driver: local
+  grafana_data:

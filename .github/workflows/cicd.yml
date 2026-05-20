@@ -43,6 +43,16 @@ jobs:
         run: |
           docker network create fitlife
 
+      - name: Setup Infrastructure
+        run: |
+          docker compose -f docker-compose.infrastructure.yml up -d --build
+          docker compose -f docker-compose.infrastructure.yml ps
+          sleep 30
+      
+      - name: Put secrets into vault ig
+        run: |
+          ./seed.vault.sh
+
       - name: Start services with Docker Compose
         run: |
           docker compose -f docker-compose.integration.yml up -d --build
