@@ -41,30 +41,6 @@ services:
     networks:
       - fitlife
 
-  loki:
-    image: grafana/loki
-    container_name: loki
-    ports:
-    - "3100:3100"
-    command: -config.file=/etc/loki/local-config.yaml
-    networks:
-      - fitlife
-
-  grafana:
-    depends_on:
-      - loki
-    image: grafana/grafana:latest
-    container_name: grafana
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-    volumes:
-      - grafana_data:/var/lib/grafana
-    networks:
-      - fitlife
 
 networks:
   fitlife:
