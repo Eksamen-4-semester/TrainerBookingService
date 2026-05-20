@@ -53,10 +53,7 @@ services:
       - auth-service
       - user-service
       - membership-service
-      - session-service
-      - analytics-service
       - trainerbooking-service
-      - frontend
     ports:
       - "4000:4000"
     networks:
