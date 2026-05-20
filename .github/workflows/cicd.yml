@@ -51,7 +51,7 @@ jobs:
       
       - name: Put secrets into vault ig
         run: |
-          ./seed.vault.sh
+          ./seed-vault.sh
 
       - name: Start services with Docker Compose
         run: |
