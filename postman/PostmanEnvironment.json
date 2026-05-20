@@ -4,19 +4,19 @@
 	"values": [
 		{
 			"key": "UserServiceApiUrl",
-			"value": "http://localhost:4000/userservices/api/",
+			"value": "http://nginx:4000/userservices/api/",
 			"type": "default",
 			"enabled": true
 		},
 		{
 			"key": "TrainerBookingServiceUrl",
-			"value": "http://localhost:4000/trainerbookingservices/api/",
+			"value": "http://nginx:4000/trainerbookingservices/api/",
 			"type": "default",
 			"enabled": true
 		},
 		{
 			"key": "MemberShipServiceUrl",
-			"value": "http://localhost:4000/membershipservices/api/",
+			"value": "http://nginx:4000/membershipservices/api/",
 			"type": "default",
 			"enabled": true
 		},
