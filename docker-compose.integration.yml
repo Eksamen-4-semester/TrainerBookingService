@@ -1,6 +1,7 @@
 services:
   auth-service:
     image: mortenstaunstrup/authservice-image:latest
+    container_name: auth-service
     expose:
       - "8080"
     networks:
@@ -10,6 +11,7 @@ services:
   
   user-service:
     image: mortenstaunstrup/userservice-image:latest
+    container_name: user-service
     expose:
       - "8080"
     networks:
@@ -21,6 +23,7 @@ services:
   
   membership-service:
     image: mortenstaunstrup/membershipservice-image:latest
+    container_name: membership-service
     expose:
       - "8080"
     networks:
@@ -33,6 +36,7 @@ services:
 
   trainerbooking-service:
     image: nicl841/trainerbookingservice-image:latest
+    container_name: trainerbooking-service
     expose:
       - "8080"
     networks:
