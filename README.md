@@ -10,6 +10,7 @@ A microservice for managing personal trainer bookings. The service allows gym me
 - `GET /api/TrainerBooking/{bookingId}` - Get a specific booking
 - `GET /api/TrainerBooking/member/{memberId}` - Get all bookings for a specific member
 
+
 ## Technologies
 
 - **C#**
