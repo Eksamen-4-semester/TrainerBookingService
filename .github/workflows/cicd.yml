@@ -38,7 +38,11 @@ jobs:
         run: |
           pwd
           ls -la
-       
+      
+      - name: Create Docker external network
+        run: |
+          docker network create fitlife
+
       - name: Start services with Docker Compose
         run: |
           docker compose -f docker-compose.integration.yml up -d --build
