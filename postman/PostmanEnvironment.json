@@ -1,0 +1,40 @@
+{
+	"id": "056e37e7-5e61-4f3a-b6a8-3884b223ae36",
+	"name": "IntegrationTestEnv",
+	"values": [
+		{
+			"key": "UserServiceApiUrl",
+			"value": "http://localhost:4000/userservices/api/",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "TrainerBookingServiceUrl",
+			"value": "http://localhost:4000/trainerbookingservices/api/",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "MemberShipServiceUrl",
+			"value": "http://localhost:4000/membershipservices/api/",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "MemberId",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "JWT",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		}
+	],
+	"color": null,
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2026-05-20T11:40:17.152Z",
+	"_postman_exported_using": "Postman/12.11.3"
+}

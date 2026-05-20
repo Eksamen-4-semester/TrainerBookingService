@@ -1,0 +1,270 @@
+{
+  "info": {
+    "_postman_id": "5e2dcb6b-602e-4a03-abad-72002a2974f4",
+    "name": "Integration Test TrainerBookingService",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "49882595",
+    "_collection_link": "https://go.postman.co/collection/49882595-5e2dcb6b-602e-4a03-abad-72002a2974f4?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Scenarios",
+      "item": [
+        {
+          "name": "Register Member -> Login Member -> Create Membership -> Create Trainer Booking",
+          "item": [
+            {
+              "name": "Register Member",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 201\", function () {",
+                      "    pm.response.to.have.status(201);",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"FullName\" : \"Morten Staunstrup Nielsen\",\n    \"Username\" : \"MSN2002\",\n    \"Password\" : \"Vinter2026\",\n    \"DOB\" : \"2002-03-12T20:00:00\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{UserServiceApiUrl}}member/register",
+                  "host": [
+                    "{{UserServiceApiUrl}}member"
+                  ],
+                  "path": [
+                    "register"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Member login",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});",
+                      "",
+                      "pm.test(\"Response is string\", function () {",
+                      "    pm.expect(pm.response.text()).to.be.a('string');",
+                      "});",
+                      "",
+                      "pm.environment.set(\"JWT\", pm.response.text());"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"Username\" : \"MSN2002\",\n    \"Password\" : \"Vinter2026\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{UserServiceApiUrl}}member/login",
+                  "host": [
+                    "{{UserServiceApiUrl}}member"
+                  ],
+                  "path": [
+                    "login"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get member",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});",
+                      "",
+                      "var jsonData = pm.response.json();",
+                      "pm.environment.set(\"MemberId\", jsonData.memberId);"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{JWT}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{UserServiceApiUrl}}member/own",
+                  "host": [
+                    "{{UserServiceApiUrl}}member"
+                  ],
+                  "path": [
+                    "own"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create Membership",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 201\", function () {",
+                      "    pm.response.to.have.status(201);",
+                      "});",
+                      "",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{JWT}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"MemberId\" : {{MemberId}},\n    \"SubscriptionId\" : 1\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{MemberShipServiceUrl}}membersubscription/create",
+                  "host": [
+                    "{{MemberShipServiceUrl}}membersubscription"
+                  ],
+                  "path": [
+                    "create"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create booking",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 201\", function () {",
+                      "    pm.response.to.have.status(201);",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{JWT}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"TrainerId\": 1,\n    \"StartTime\" : \"2026-10-09T19:00:00\",\n    \"EndTime\" : \"2026-10-09T20:00:00\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{TrainerBookingServiceUrl}}trainerbooking/",
+                  "host": [
+                    "{{TrainerBookingServiceUrl}}trainerbooking"
+                  ],
+                  "path": [
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

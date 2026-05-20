@@ -25,3 +25,30 @@ jobs:
 
       - name: Build
         run: dotnet build ${{ env.API_PROJ_PATH }} --configuration Release --no-restore
+
+        # 3. Setup Node (for Newman)
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+        node-version: 18
+        # 4. Install Newman globally
+      - name: Install Newman
+        run: npm install -g newman
+      - name: Debug directory
+        run: |
+          pwd
+          ls -la
+       
+      - name: Start services with Docker Compose
+        run: |
+          docker compose -f docker-compose.integration.yml up -d --build
+          docker compose -f docker-compose.integration.yml ps
+          sleep 30
+
+      - name: Run Newman Tests
+        run: |
+          npm install -g newman
+          newman run postman/PostmanCollection.json \
+          --environment postman/PostmanEnvironment.json \
+          --reporters cli,junit \
+          --reporter-junit-export newman-report.xml

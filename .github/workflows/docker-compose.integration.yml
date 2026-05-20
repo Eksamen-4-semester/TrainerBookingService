@@ -1,0 +1,109 @@
+services:
+  auth-service:
+    image: mortenstaunstrup/authservice-image:latest
+    expose:
+      - "8080"
+    networks:
+      - fitlife
+    environment:
+      - VAULT_URL=https://vault:8201/
+  
+  user-service:
+    image: mortenstaunstrup/userservice-image:latest
+    expose:
+      - "8080"
+    networks:
+      - fitlife
+    environment:
+      - AUTHSERVICE_URL=http://nginx:4000/authservices/
+      - VAULT_URL=https://vault:8201/
+      - DOCKER=TRUE
+  
+  membership-service:
+    image: mortenstaunstrup/membershipservice-image:latest
+    expose:
+      - "8080"
+    networks:
+      - fitlife
+    environment:
+      - AUTHSERVICE_URL=http://nginx:4000/authservices/
+      - VAULT_URL=https://vault:8201/
+      - DOCKER=TRUE
+
+  session-service:
+    image: mortenstaunstrup/sessionservice-image:latest
+    expose:
+      - "8080"
+    networks:
+      - fitlife
+    environment:
+      - AUTHSERVICE_URL=http://nginx:4000/authservices/
+      - VAULT_URL=https://vault:8201/
+      - USERSERVICE_URL=http://nginx:4000/userservice/
+      - DOCKER=TRUE
+
+  analytics-service:
+    image: thanushanb/analyticsservice-image:latest
+    expose:
+      - "8080"
+    networks:
+      - fitlife
+    environment:
+      - AUTHSERVICE_URL=http://nginx:4000/authservices/
+      - VAULT_URL=https://vault:8201/
+      - DOCKER=TRUE
+
+  trainerbooking-service:
+    image: mortenstaunstrup/trainerbookingservice-image:latest
+    expose:
+      - "8080"
+    networks:
+      - fitlife
+    environment:
+      - AUTHSERVICE_URL=http://nginx:4000/authservices/
+      - USERSERVICE_URL=http://nginx:4000/userservices/
+      - MEMBERSHIPSERVICE_URL=http://nginx:4000/membershipservices/
+      - VAULT_URL=https://vault:8201/
+      - DOCKER=TRUE
+
+
+  frontend:
+    image: mortenstaunstrup/frontend-image:latest
+    expose:
+      - "8080"
+    networks:
+      - fitlife
+    environment:
+      - VAULT_URL=https://vault:8201/
+      - AUTHSERVICE_URL=http://nginx:4000/authservices/api/
+      - USERSERVICE_URL=http://nginx:4000/userservices/api/
+      - SESSIONSERVICE_URL=http://nginx:4000/sessionservices/api/
+      - MEMBERSHIPSERVICE_URL=http://nginx:4000/membershipservices/api/
+      - TRAINERBOOKINGSERVICE_URL=http://nginx:4000/trainerbookingservices/api/
+    volumes:
+      - datakeys:/root/.aspnet/DataProtection-Keys
+
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - auth-service
+      - user-service
+      - membership-service
+      - session-service
+      - analytics-service
+      - trainerbooking-service
+      - frontend
+    ports:
+      - "4000:4000"
+    networks:
+      - fitlife
+
+
+networks:
+  fitlife:
+    external: true
+
+volumes:
+  datakeys:
